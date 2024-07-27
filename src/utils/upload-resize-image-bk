@@ -1,0 +1,46 @@
+const sharp = require("sharp");
+const { uploadFileToAzure } = require("./functions");
+const { AzureStorage } = require("./azure-storage");
+
+async function streamToBuffer(readableStream) {
+    return new Promise((resolve, reject) => {
+      const chunks = [];
+      readableStream.on("data", (data) => {
+        chunks.push(data instanceof Buffer ? data : Buffer.from(data));
+      });
+      readableStream.on("end", () => {
+        resolve(Buffer.concat(chunks));
+      });
+      readableStream.on("error", reject);
+    });
+}
+
+exports.uploadResizeFileImagePost = async (req, file) => {
+    req.file = file;
+
+    const upload = await uploadFileToAzure({
+        req,
+        container: 'users',
+        filePath: `${req.user.id}/posts/${req.postId}`
+    });
+
+    const azure = new AzureStorage({
+        container: upload.file.container,
+        path: upload.file.filePath
+    });
+
+    const downloadBlockBlobResponse = await azure.blobClient.download();
+    const downloaded = (
+        await streamToBuffer(downloadBlockBlobResponse.readableStreamBody)
+    );
+
+    azure.deletePath(upload.file.filePath)
+
+    sharp(downloaded)
+        .rotate()
+        .resize(409, 362)
+        .jpeg({ mozjpeg: true })
+        .toBuffer()
+        .then((data) => console.log(data))
+        .catch((err) => console.log(err));
+}

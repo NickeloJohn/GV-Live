@@ -1,0 +1,220 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Mobile App Dev",
+        "description": "",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "https://unleash.azure-api.net/api/v1/unleash"
+        }
+    ],
+    "paths": {
+        "/signin/email": {
+            "post": {
+                "tags": [
+                    "Signin"
+                ],
+                "summary": "Signin User",
+                "operationId": "signin-user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SigninUser"
+                            },
+                            "example": {
+                                "email": "bataljade9614@gmail.com",
+                                "password": "Password!@#$1"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SigninUserSuccessResponse"
+                                },
+                                "example": {
+                                    "c": 200,
+                                    "m": null,
+                                    "d": {
+                                        "fullname": "",
+                                        "id": "652d626955312b8a69550855",
+                                        "role": "user",
+                                        "email": "bataljade9614@gmail.com",
+                                        "tokens": {
+                                            "access": "eyJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsiLCJ0eXAiOiJKV1QifQ.eyJpZHAiOiJMb2NhbEFjY291bnQiLCJvaWQiOiJjODk3ZTBjMS1iZDQ2LTQwZDAtYjJlYS1jYmIyYjJlZGU3MTQiLCJzdWIiOiJjODk3ZTBjMS1iZDQ2LTQwZDAtYjJlYS1jYmIyYjJlZGU3MTQiLCJnaXZlbl9uYW1lIjoiTi9BIiwiZmFtaWx5X25hbWUiOiJOL0EiLCJuYW1lIjoiTi9BIE4vQSIsIm5ld1VzZXIiOmZhbHNlLCJ0ZnAiOiJCMkNfMV9Nb2JpbGVBdXRoZW50aWNhdGlvbiIsImF6cCI6IjE3YjcwOGEwLTQzMWEtNDc5ZS04NWQ5LTFiNjM2NTU2MmJhZSIsInZlciI6IjEuMCIsImlhdCI6MTY5ODI4MTcwNiwiYXVkIjoiMTdiNzA4YTAtNDMxYS00NzllLTg1ZDktMWI2MzY1NTYyYmFlIiwiZXhwIjoxNjk4MzI0OTA2LCJpc3MiOiJodHRwczovL213ZWxsYjJjLmIyY2xvZ2luLmNvbS8wNWZiNWViOC1jOTBiLTRlNTQtOGM2MS03MGZhZTk5ODQyNzcvdjIuMC8iLCJuYmYiOjE2OTgyODE3MDZ9.lAvwzh4MSZczccHNLFdFAIr1mBQrcrW2H-NzSevfikIDsWVSn4oF0MicvMpCvjAZEJzJdBJ97YGJljXcpu9knh4rxTXrkRWP0hV119Em08ZGAq1izEWWixkJ0Xm_vzFEltnnjhgwlUh-do5eHxg_z8YzRpVCjM_SaDWEH6s20d9kmB9ZUA8EbKsWtxFOtsfloAmI0DOfRQnTRG1P5CbtRWDEDIzguZWalZeAnnRMVUSvqoVlPe84yMry03TX_qKNcgLbV7zBzN1wwvIcYk_chrD08zC9gxsvn9CWMC7lDVcoYaezhFgdBlsAYCVw-eFG3PY49Yrq14v_yiukfEUvvg",
+                                            "refresh": "eyJraWQiOiJjcGltY29yZV8wOTI1MjAxNSIsInZlciI6IjEuMCIsInppcCI6IkRlZmxhdGUiLCJzZXIiOiIxLjAifQ..-91Gh3L2YCzaNdt6.L9Yl5fjh59O1j8jyMbHOCSqnPq19LpaYpmgAcEa9MlSZZPaIumCpbb8qviqWfOoqJ2TZvG5Y6luX6opLIR4nm1Otyc_RzQL0vRetBc4pInm9nKV-7NpGCjhh8GkU3djx5Roh5SrN10lAjzzqLiI_Co7QboqOnPOYPtCzo98Yz645jR76S8k0GHu2HfF7EhJaJMDI5AUJxmNYWsXTw_F0FmfHm6-_cF5VS_dJW3cQhcWuu95BUxwudDX3HKi2Q8yPp-gPa1zJAm39c6WOnl6iv-KRBAaPuKAzjp6SDRswFNy_EkUdNIcMqWe7i_MmwEMft-0LYvEcCCdPO4RsvT_HVB9aP5Zypsp_Iz1vKlqve_ddR_FoDWvIdoT3pvhfQxJgasokyR1f-AKwBCSzqovOpAutdHx4bUxxj_8Wq3IrI3k9Y2c44BhbmKTY6y0W1VQvmA0JqFwFqiOmp7s5Ii8t773KVrP5QZ4gxKOrrZTO90plepNt-_Vw9i8vVCIB85WBNF4Yu_9_P96tpwMFzmZ4scoDYP3MTZt-IOLiP9juvWKLcBUtZ782gQqWTjITdJCIjbeZ5dgjlpJgQj8HRYIZFGXvXV08merERNg8R4NcM4ndeBcujJu6imOFwwClI_TYGojX5e7JDBCvdSChOA0706RPL3RTg25TdC7PGWfSgwgTaok.mAbrEOrVwhcWWPSLC-THNQ"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/signup/email": {
+            "post": {
+                "tags": [
+                    "Signin"
+                ],
+                "summary": "Signup User",
+                "operationId": "signup-user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignUpUserUsingEmail"
+                            },
+                            "example": {
+                                "email": "test1@gmail.com",
+                                "password": "Password!@#$1",
+                                "cpassword": "Password!@#$1"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SignUpUserUsingEmailSuccessResponse"
+                                },
+                                "example": {
+                                    "c": 200,
+                                    "m": null,
+                                    "d": {
+                                        "userId": "653c112c5ba70f40716e24ff",
+                                        "isEmailVerified": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SigninUser": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SigninUserSuccessResponse": {
+                "type": "object",
+                "properties": {
+                    "c": {
+                        "type": "integer"
+                    },
+                    "m": {},
+                    "d": {
+                        "type": "object",
+                        "properties": {
+                            "fullname": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "role": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string"
+                            },
+                            "tokens": {
+                                "type": "object",
+                                "properties": {
+                                    "access": {
+                                        "type": "string"
+                                    },
+                                    "refresh": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "SignUpUserUsingEmail": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "cpassword": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SignUpUserUsingEmailSuccessResponse": {
+                "type": "object",
+                "properties": {
+                    "c": {
+                        "type": "integer"
+                    },
+                    "m": {},
+                    "d": {
+                        "type": "object",
+                        "properties": {
+                            "userId": {
+                                "type": "string"
+                            },
+                            "isEmailVerified": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "Ocp-Apim-Subscription-Key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "subscription-key",
+                "in": "query"
+            },
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "apiKeyHeader": []
+        },
+        {
+            "apiKeyQuery": []
+        },
+        {
+            "bearerAuth": []
+        }
+    ]
+}
