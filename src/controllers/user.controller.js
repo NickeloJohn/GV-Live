@@ -118,6 +118,18 @@ class UserController {
       d: user
     });
   }
+
+  async getUserHistory(req, res, next) {
+    const { userId } = req.params;
+    const { actionType } = req.query;
+    const actions = await userService.getUserHistory(userId, actionType);
+    res.json({
+      c: httpStatus.OK,
+      m: 'Successfully update profile',
+      d: actions??[]
+    });
+
+}
 }
 
 module.exports = new UserController();

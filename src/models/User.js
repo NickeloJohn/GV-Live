@@ -14,6 +14,7 @@ const { PROFILE_PRIVACY_STATUS } = require('../utils/constant');
 const config = require('../config/config');
 const { transformUser } = require('../transform/user.transform');
 const UserPreferredContent = require('./UserPreferredContent');
+const { array } = require('joi');
 
 const Adb2cSchema = new mongoose.Schema({
     _id: false,
@@ -450,6 +451,10 @@ const UserSchema = new mongoose.Schema(
         totalFollowing: {
             type: Number,
             default: 0,
+            index: true
+        },
+        moderationActions: {
+            type: Array,
             index: true
         },
         settings: SettingsSchema,

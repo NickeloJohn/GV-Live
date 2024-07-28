@@ -457,6 +457,20 @@ class UserService {
       }
     }
   }
+
+  async getUserHistory(userId, actionType) {
+    const user = await User.findById(userId).select('moderationActions');
+    console.log(user)
+    if (!user) {
+        throw new ErrorResponse(httpStatus.NOT_FOUND, 'User not found');
+    }
+    let actions = user.moderationActions;
+    if (actionType) {
+        actions = actions.filter(action => action.actionType === actionType);
+    }
+    return actions;
+}
+  
 }
 
 module.exports = new UserService();
