@@ -1,51 +1,96 @@
+const httpStatus = require("http-status");
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 class PostService {
-  async getViewFlagged() {
-    const content = await Post.find({ "flagged.isFlagged": true });
-    return content;
+  async getFlaggedPosts() {
+    return await Post.find({ "flagged.isFlagged": true });
   }
 
-  async approveContent(postId, adminId) {
-    const approve = await Post.findById(postId);
+  async approvePost(postId, adminId) {
+    const post = await Post.findById(postId);
 
-    if (!approve) {
-      throw new Error("Post not found");
-    }
-
-    const flag = approve.flagged;
+    if (!post) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Unable to approve');
+    const flag = post.flagged;
 
     if (flag.isFlagged) {
       flag.isAdminAction = true;
       flag.adminAction = "approve";
       flag.adminId = adminId;
       flag.adminActionAt = new Date();
-      approve.save();
+      await post.save();
     }
 
     return {};
   }
 
-  async removeContent(postId, adminId) {
-    const remove = await Post.findById(postId);
+  async removePost(postId, adminId) {
+    const post = await Post.findById(postId);
 
-    if (!remove) {
+    if (!post) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Unable to remove');
+    const flag = post.flagged;
+
+    if (flag.isFlagged) {
+      flag.isAdminAction = true;
+      flag.adminAction = "remove";
+      flag.adminId = adminId;
+      flag.adminActionAt = new Date();
+      post.status = "deleted";
+      await post.save();
+    }
+
+    return {};
+  }
+
+  async approveComment(postId, commentId, adminId) {
+    const post = await Post.findById(postId);
+
+    if (!post) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Unable to approveComment');
+
+    const comment = post.comments.id(commentId);
+
+    if (!comment) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Comment not found');
+
+    const flag = comment.flagged;
+
+    if (flag.isFlagged) {
+      flag.isAdminAction = true;
+      flag.adminAction = "approve";
+      flag.adminId = adminId;
+      flag.adminActionAt = new Date();
+      await post.save();
+    }
+
+    return {};
+  }
+
+  async removeComment(postId, commentId, adminId) {
+    const post = await Post.findById(postId);
+
+    if (!post) {
       throw new Error("Post not found");
     }
 
-    const review = remove.flagged;
+    const comment = post.comments.id(commentId);
 
-    if (review.isFlagged) {
-      review.isAdminAction = true;
-      review.adminAction = "remove";
-      review.adminId = adminId;
-      review.adminActionAt = new Date();
-      remove.status = "deleted";
-      remove.save();
+    if (!comment) {
+      throw new Error("Comment not found");
+    }
+
+    const flag = comment.flagged;
+
+    if (flag.isFlagged) {
+      flag.isAdminAction = true;
+      flag.adminAction = "remove";
+      flag.adminId = adminId;
+      flag.adminActionAt = new Date();
+      comment.status = "deleted";
+      await post.save();
     }
 
     return {};
   }
+
 }
 
 module.exports = new PostService();

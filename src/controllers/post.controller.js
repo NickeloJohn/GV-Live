@@ -2,20 +2,20 @@ const httpStatus = require("http-status");
 const { postService } = require("../services");
 
 class PostController {
-  async getViewContent(req, res) {
-    const content = await postService.getViewFlagged();
+  async getFlaggedPosts(req, res) {
+    const content = await postService.getFlaggedPosts();
     res.json({
       c: httpStatus.OK,
-      m: "Flagged content (photos and videos) are listed in the moderation queue.",
-      d: {}
+      m: "Flagged posts are listed in the moderation queue.",
+      d: content
     });
   }
 
-  async approveContent(req, res) {
+  async approvePost(req, res) {
     const { postId } = req.params;
     const { adminId } = req.user;
 
-    const approve = await postService.approveContent(postId, adminId);
+    await postService.approvePost(postId, adminId);
     res.json({
       c: httpStatus.OK,
       m: "Post approved successfully",
@@ -23,17 +23,42 @@ class PostController {
     });
   }
 
-  async removeContent(req, res) {
+  async removePost(req, res) {
     const { postId } = req.params;
     const { adminId } = req.user;
 
-    const remove = await postService.removeContent(postId, adminId);
+    await postService.removePost(postId, adminId);
     res.json({
       c: httpStatus.OK,
       m: "Post removed successfully",
       d: {}
     });
   }
+
+  async approveComment(req, res) {
+    const { postId, commentId } = req.params;
+    const { adminId } = req.user;
+
+    await postService.approveComment(postId, commentId, adminId);
+    res.json({
+      c: httpStatus.OK,
+      m: "Comment approved successfully",
+      d: {}
+    });
+  }
+
+  async removeComment(req, res) {
+    const { postId, commentId } = req.params;
+    const { adminId } = req.user;
+
+    await postService.removeComment(postId, commentId, adminId);
+    res.json({
+      c: httpStatus.OK,
+      m: "Comment removed successfully",
+      d: {}
+    });
+  }
+
 }
 
 module.exports = new PostController();

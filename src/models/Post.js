@@ -17,41 +17,19 @@ const transform = (doc, obj) => {
   //     }
   // }
 };
-const FlaggedSchema = new mongoose.Schema(
-  {
-    flagBy: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User'
-    },
-    isFlagged: {
-      type: Boolean,
-      default: true
-    },
-    reason: {
-      type: String,
-      enum: ['spam', 'abuse', 'hate speech', 'nude photos', 'nude videos', 'other']
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    },
-    isAdminAction: {
-      type: Boolean,
-      default: false
-    },
-    adminAction: {
-      type: String,
-      enum: ['approve', 'remove'],
-      default: null
-    },
-    adminId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User'
-    },
-    adminActionAt: {
-      type: Date,
-      default: null
-    }
+
+const FlaggedSchema = new mongoose.Schema({
+  isFlagged: { type: Boolean, default: false },
+  isAdminAction: { type: Boolean, default: false },
+  adminAction: { type: String, enum: ['approve', 'remove', 'warning', 'timeout', 'banned'] },
+  adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  adminActionAt: { type: Date }
+});
+
+const CommentSchema = new mongoose.Schema({
+  text: String,
+  flagged: FlaggedSchema,
+  status: { type: String, default: 'active' }
 });
 
 
@@ -60,105 +38,109 @@ const PostSchema = new mongoose.Schema(
   {
     author: {
       type: mongoose.Schema.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
-      index: true
+      index: true,
     },
     category: [
       {
         type: mongoose.Schema.ObjectId,
-        ref: 'Category',
+        ref: "Category",
         required: true,
-        index: true
-      }
+        index: true,
+      },
     ],
     title: {
       type: String,
       default: null,
-      index: true
+      index: true,
     },
     body: {
       type: String,
       default: null,
-      index: true
+      index: true,
     },
     media: [MongooseHelper.MediaSchema],
     music: MongooseHelper.defaultFile,
     privacySetting: {
       type: String,
-      enum: PROFILE_PRIVACY_STATUS
+      enum: PROFILE_PRIVACY_STATUS,
     },
     isAllowedComments: {
       type: Boolean,
-      default: true
+      default: true,
     },
     visibleTo: [
       {
         type: mongoose.Schema.ObjectId,
-        ref: 'User'
-      }
+        ref: "User",
+      },
     ],
     location: {
       type: String,
-      default: null
+      default: null,
     },
     likes: {
       type: Number,
       default: 0,
-      index: true
+      index: true,
     },
     comments: {
       type: Number,
       default: 0,
-      index: true
+      index: true,
     },
     shares: {
       type: Number,
       default: 0,
-      index: true
+      index: true,
     },
     views: {
       type: Number,
       default: 0,
-      index: true
+      index: true,
     },
     reposts: {
       type: Number,
       default: 0,
-      index: true
+      index: true,
     },
     reports: {
       type: Number,
       trim: true,
-      index: true
+      index: true,
     },
     tags: {
       type: Array,
       trim: true,
-      index: true
+      index: true,
     },
     repost: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Post',
-      index: true
+      ref: "Post",
+      index: true,
     },
     status: {
       type: String,
-      enum: ['active', 'deleted', 'pet_deleted', 'user_deleted'],
-      default: 'active',
-      index: true
+      enum: ["active", "deleted", "pet_deleted", "user_deleted"],
+      default: "active",
+      index: true,
     },
     isLive: {
       type: Boolean,
       default: false,
-      index: true
+      index: true,
     },
+    content: String,
+    typeContent: { type: String, 
+    enum: ["photo", "video"] },
+    comments: [CommentSchema],
     flagged: FlaggedSchema,
-    ...MongooseHelper.timeStamps
+    ...MongooseHelper.timeStamps,
   },
   {
     toJSON: { virtuals: true, transform },
-    toObject: { virtuals: true, transform }
+    toObject: { virtuals: true, transform },
   }
 );
 

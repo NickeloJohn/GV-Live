@@ -16,6 +16,12 @@ const { transformUser } = require('../transform/user.transform');
 const UserPreferredContent = require('./UserPreferredContent');
 const { array } = require('joi');
 
+const ActionHistorySchema = new mongoose.Schema({
+    actionType: String,
+    details: String,
+    date: { type: Date, default: Date.now },
+  });
+
 const Adb2cSchema = new mongoose.Schema({
     _id: false,
     username: {
@@ -457,6 +463,16 @@ const UserSchema = new mongoose.Schema(
             type: Array,
             index: true
         },
+        accountHistory: [
+            {
+              actionType: { type: String, enum: ['warning', 'timeout', 'ban'] },
+              actionDate: { type: Date, default: Date.now },
+              details: String,
+              postId: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
+              adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+            }
+          ],
+        actionHistory: [ActionHistorySchema],
         settings: SettingsSchema,
         ...MongooseHelper.timeStamps
     },

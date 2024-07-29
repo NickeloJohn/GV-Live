@@ -459,17 +459,19 @@ class UserService {
   }
 
   async getUserHistory(userId, actionType) {
-    const user = await User.findById(userId).select('moderationActions');
-    console.log(user)
-    if (!user) {
-        throw new ErrorResponse(httpStatus.NOT_FOUND, 'User not found');
-    }
-    let actions = user.moderationActions;
+    const user = await User.findById(userId).select('actionHistory');
+    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account history not found');
+
+    
+    let actionHistory = user.actionHistory;
+  
     if (actionType) {
-        actions = actions.filter(action => action.actionType === actionType);
+      actionHistory = actionHistory.filter(action => action.actionType === actionType);
     }
-    return actions;
-}
+  
+    actionHistory.sort((a, b) => b.date - a.date);
+    return actionHistory;
+  };
   
 }
 

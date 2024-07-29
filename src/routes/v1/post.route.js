@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { asyncHandler } = require('../../middlewares/asyncHandler');
-const { getViewContent, approveContent, removeContent } = require('../../controllers/post.controller');
+const { getFlaggedPosts, approvePost, removePost, approveComment, removeComment } = require('../../controllers/post.controller');
 
+router.get('/flagged/posts', asyncHandler(getFlaggedPosts));
+router.put('/approve/:postId', asyncHandler(approvePost));
+router.delete('/posts/remove/:postId', asyncHandler(removePost));
 
-router.get('/view-flagged-photo', asyncHandler(getViewContent))
-router.put('/posts/approve/:postId', asyncHandler(approveContent));
-router.delete('/posts/remove/:postId',asyncHandler(removeContent));
+router.put('/comments/approve/:postId/:commentId', asyncHandler(approveComment));
+router.delete('/comments/remove/:postId/:commentId', asyncHandler(removeComment));
 
 
 module.exports = router;
