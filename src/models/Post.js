@@ -18,20 +18,6 @@ const transform = (doc, obj) => {
   // }
 };
 
-const FlaggedSchema = new mongoose.Schema({
-  isFlagged: { type: Boolean, default: false },
-  isAdminAction: { type: Boolean, default: false },
-  adminAction: { type: String, enum: ['approve', 'remove', 'warning', 'timeout', 'banned'] },
-  adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  adminActionAt: { type: Date }
-});
-
-const CommentSchema = new mongoose.Schema({
-  text: String,
-  flagged: FlaggedSchema,
-  status: { type: String, default: 'active' }
-});
-
 
 
 const PostSchema = new mongoose.Schema(
@@ -134,8 +120,20 @@ const PostSchema = new mongoose.Schema(
     content: String,
     typeContent: { type: String, 
     enum: ["photo", "video"] },
-    comments: [CommentSchema],
-    flagged: FlaggedSchema,
+    flagged: {
+      isFlagged: { type: Boolean, 
+      default: false },
+      typeContent: { type: String, 
+      enum: ["photo", "video"]},
+      isAdminAction: { type: Boolean,
+      default: false },
+      adminAction: { type: String, 
+      enum: ['approve', 'remove', 'warning', 'timeout', 'banned'] },
+      userId: { type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User' },
+      adminActionAt: { type: Date }
+    },
+    
     ...MongooseHelper.timeStamps,
   },
   {

@@ -4,7 +4,7 @@ const router = express.Router();
 const { defaultLimiter } = require('../../utils/rate-limiter');
 const { uploadSingleFile } = require('../../utils/multer-upload');
 const { protectAuth } = require('../../middlewares/protectAuth');
-const { followUser, unFollowUser, removeFollower, getAllUserFollowing, getAllUserFollowed, getAllSuggestToFollow, getInterest, updateProfile, getMe, getUserHistory } = require('../../controllers/user.controller');
+const { followUser, unFollowUser, removeFollower, getAllUserFollowing, getAllUserFollowed, getAllSuggestToFollow, getInterest, updateProfile, getMe, getUserHistory, suspendUserController, getUserProfileController, getUsersWithRoles, assignRoleToUser, adjustPermissions } = require('../../controllers/user.controller');
 const { asyncHandler } = require('../../middlewares/asyncHandler');
 const validate = require('../../middlewares/validate');
 const { updateProfileValidation } = require('../../validations/user.validation');
@@ -14,6 +14,9 @@ router.use(defaultLimiter, protectAuth(router));
 
 router.get('/me', asyncHandler(getMe));
 router.get('/:userId/history', asyncHandler(getUserHistory));
+router.get('/role', asyncHandler(getUsersWithRoles));
+router.get('/assign-role', asyncHandler(assignRoleToUser));
+router.post('/adjust-permissions', asyncHandler(adjustPermissions));
 router.put('/:userId', 
   uploadSingleFile,
   validate(updateProfileValidation),

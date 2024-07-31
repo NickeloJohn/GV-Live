@@ -8,6 +8,7 @@ const { generateReferralCode, decryptData, defaultPaginate, ObjectId, getFullNam
 const { createEmailOTP, createOTPNumber } = require('../utils/user');
 const { sendEMAILChangePassword, sendEMAILOTP, sendEMAILOTPForgotPassword } = require('../utils/mailer_template');
 const config = require('../config/config');
+const Role = require('../models/Role');
 
 class UserService {
   async getUserByEmail(email, select = null) {
@@ -32,13 +33,15 @@ class UserService {
   async getUserByIds(ids, select = null) {
     let user = User.find({
       _id: {
-        $in: ids
+        $in: ids,
       },
     });
     if (select) {
       user = user.select(select);
     } else {
-      user = user.select('firstName middleName lastName fullName profilePicture email phoneNumber phoneNumberPrefix username totalFollowing totalFollower');
+      user = user.select(
+        "firstName middleName lastName fullName profilePicture email phoneNumber phoneNumberPrefix username totalFollowing totalFollower"
+      );
     }
     return await user;
   }
@@ -49,7 +52,7 @@ class UserService {
 
   async getIsExistReferralCode(referralCode) {
     const referral = await User.exists({
-      referralCode: referralCode
+      referralCode: referralCode,
     });
     return referral;
   }
@@ -74,11 +77,19 @@ class UserService {
     const dateToday = moment().toDate();
     expiredAt = moment(expiredAt).toDate();
 
-    if (dateToday > expiredAt) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'The verification code has expired, please request a new one.');
+    if (dateToday > expiredAt)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "The verification code has expired, please request a new one."
+      );
   }
 
   validateIsCodeMatched(code, emailOTPCode) {
-    if (code !== emailOTPCode) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'You entered the wrong verification code, please try again.');
+    if (code !== emailOTPCode)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "You entered the wrong verification code, please try again."
+      );
   }
 
   async _isOtpNumberMatched(otpNumber, userOtpNumber) {}
@@ -87,7 +98,11 @@ class UserService {
     const { userId, otpNumber } = payload;
 
     const user = await this.getUserById(userId);
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+    if (!user)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
 
     this.validateIsOtpExpired(user?.emailOTP?.expiredAt);
     this.validateIsCodeMatched(otpNumber, user?.emailOTP?.code);
@@ -101,8 +116,13 @@ class UserService {
 
   async resendEmailOtp(userId) {
     const user = await this.getUserById(userId);
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'User not found');
-    if (user.isEmailVerified) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account is already verified please login your account');
+    if (!user)
+      throw new ErrorResponse(httpStatus.BAD_REQUEST, "User not found");
+    if (user.isEmailVerified)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account is already verified please login your account"
+      );
 
     const dateToday = new Date();
     const resendAt = new Date(user.emailOTP?.resendAt);
@@ -112,8 +132,8 @@ class UserService {
       user.emailOTP = {
         code: otpNumber,
         createdAt: new Date(),
-        resendAt: moment().add(1, 'minutes').toDate(),
-        expiredAt: moment().add(5, 'minutes').toDate()
+        resendAt: moment().add(1, "minutes").toDate(),
+        expiredAt: moment().add(5, "minutes").toDate(),
       };
       await user.save();
     }
@@ -122,13 +142,25 @@ class UserService {
   }
 
   async loginEmailAndPassword(email, password) {
-    const user = await this.getUserByEmail(email, '+password');
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Invalid Username and Password');
+    const user = await this.getUserByEmail(email, "+password");
+    if (!user)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Invalid Username and Password"
+      );
 
     const isPasswordMatch = user?.isPasswordMatch(password);
-    if (!isPasswordMatch) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Invalid Username and Password');
+    if (!isPasswordMatch)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Invalid Username and Password"
+      );
 
-    if (!user?.isEmailVerified) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Please verify your email address');
+    if (!user?.isEmailVerified)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Please verify your email address"
+      );
 
     return user;
   }
@@ -136,21 +168,25 @@ class UserService {
   async forgotPasswordStep1(req) {
     const { email, type } = req.body;
 
-    const user = await this.getUserByEmail(email, 'isEmailVerified email');
-    if (!user || !user?.isEmailVerified) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+    const user = await this.getUserByEmail(email, "isEmailVerified email");
+    if (!user || !user?.isEmailVerified)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
 
-    user.passwordChangeExpiredAt = moment().add(20, 'minutes');
+    user.passwordChangeExpiredAt = moment().add(20, "minutes");
 
     // type: verify send otp to email
     // type: deeplink send email to change password
-    if (type === 'verify') {
+    if (type === "verify") {
       const otpNumber = createOTPNumber();
       user.emailOTPForgotPassword = {
         isVerified: false,
         code: otpNumber,
         createdAt: new Date(),
-        resendAt: moment().add(1, 'minutes').toDate(),
-        expiredAt: moment().add(10, 'minutes').toDate()
+        resendAt: moment().add(1, "minutes").toDate(),
+        expiredAt: moment().add(10, "minutes").toDate(),
       };
       await sendEMAILOTPForgotPassword(user);
     } else {
@@ -160,16 +196,20 @@ class UserService {
 
     return {
       userId: user.id,
-      passwordChangeExpiredAt: user.passwordChangeExpiredAt
+      passwordChangeExpiredAt: user.passwordChangeExpiredAt,
     };
   }
 
   async verifyEmailForgotPassword(payload) {
     const { userId, otpNumber } = payload;
 
-    const user = await this.getUserById(userId, '+passwordChangeExpiredAt');
+    const user = await this.getUserById(userId, "+passwordChangeExpiredAt");
 
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+    if (!user)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
 
     console.log(user);
     this.validateIsOtpExpired(user?.emailOTPForgotPassword?.expiredAt);
@@ -181,7 +221,7 @@ class UserService {
 
     return {
       userId: user.id,
-      passwordChangeExpiredAt: user.passwordChangeExpiredAt
+      passwordChangeExpiredAt: user.passwordChangeExpiredAt,
     };
   }
 
@@ -196,13 +236,29 @@ class UserService {
       myUserId = userId;
     }
 
-    const user = await this.getUserById(myUserId, '+password +salt');
+    const user = await this.getUserById(myUserId, "+password +salt");
 
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
-    if (User.isPasswordExpired(user)) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Password change expired');
-    if (!User.isAccountRegisteredViaNormalSignUp(user)) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not registered via sign up');
+    if (!user)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
+    if (User.isPasswordExpired(user))
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Password change expired"
+      );
+    if (!User.isAccountRegisteredViaNormalSignUp(user))
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not registered via sign up"
+      );
 
-    if (!user.emailOTPForgotPassword.isVerified) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Please verify your email otp first');
+    if (!user.emailOTPForgotPassword.isVerified)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Please verify your email otp first"
+      );
 
     const { passwordSalt, passwordHash } = User.generatePassword(password);
 
@@ -215,11 +271,13 @@ class UserService {
         code: null,
         createdAt: null,
         resendAt: null,
-        expiredAt: null
-      }
+        expiredAt: null,
+      },
     };
 
-    const result = await User.findByIdAndUpdate(myUserId, payloadData, { new: true });
+    const result = await User.findByIdAndUpdate(myUserId, payloadData, {
+      new: true,
+    });
 
     return result;
   }
@@ -242,9 +300,9 @@ class UserService {
           email: 1,
           phoneNumber: 1,
           phoneNumberPrefix: 1,
-          profilePicture: 1
-        }
-      }
+          profilePicture: 1,
+        },
+      },
     ]);
 
     const paginatedResult = await User.aggregatePaginate(aggregate, options);
@@ -261,10 +319,24 @@ class UserService {
   async updateProfile(req) {
     const { body, user, params } = req;
 
-    if (params.userId !== 'me' && user.id !== params.userId) throw new ErrorResponse(httpStatus.FORBIDDEN, 'You are not allowed to update this user profile.');
-    const userId = params.userId === 'me' ? user.id : params.userId;
+    if (params.userId !== "me" && user.id !== params.userId)
+      throw new ErrorResponse(
+        httpStatus.FORBIDDEN,
+        "You are not allowed to update this user profile."
+      );
+    const userId = params.userId === "me" ? user.id : params.userId;
 
-    const { firstName, middleName, lastName, birthday, gender, address, languages, sign, bio } = body;
+    const {
+      firstName,
+      middleName,
+      lastName,
+      birthday,
+      gender,
+      address,
+      languages,
+      sign,
+      bio,
+    } = body;
 
     const setPayload = {
       firstName: firstName,
@@ -280,11 +352,11 @@ class UserService {
         province: address.province,
         townCity: address.townCity,
         barangay: address.barangay,
-        zipCode: address.zipCode
+        zipCode: address.zipCode,
       },
       languages: languages,
       sign: sign,
-      bio: bio
+      bio: bio,
     };
 
     await User.findOneAndUpdate({ _id: userId }, setPayload, { new: true });
@@ -294,17 +366,25 @@ class UserService {
   async signupPassword(req) {
     const { password } = req.body;
 
-    const user = await this.getUserById(req.user.id, '+password');
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+    const user = await this.getUserById(req.user.id, "+password");
+    if (!user)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
 
-    if (user.password) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Password already created');
+    if (user.password)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Password already created"
+      );
 
     user.password = password;
 
     if (!user.settings) {
       user.settings = {
-        isPasswordSet: true
-      }
+        isPasswordSet: true,
+      };
     } else {
       user.settings.isPasswordSet = true;
     }
@@ -325,55 +405,72 @@ class UserService {
       userId,
       {
         $set: {
-          settings: payload
-        }
+          settings: payload,
+        },
       },
       { new: true }
     );
 
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+    if (!user)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
 
     return user;
   }
 
   validateFingerprint(fingerprintUID, storedFingerprintUID) {
     if (!storedFingerprintUID) {
-      throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Fingerprint not set yet');
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Fingerprint not set yet"
+      );
     }
     if (fingerprintUID !== decryptPassword(storedFingerprintUID)) {
-      throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Fingerprint not matched');
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Fingerprint not matched"
+      );
     }
   }
 
   validateFaceId(faceIdUID, storedFaceIdUID) {
     if (!storedFaceIdUID) {
-      throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Face ID not set yet');
+      throw new ErrorResponse(httpStatus.BAD_REQUEST, "Face ID not set yet");
     }
     if (faceIdUID !== decryptPassword(storedFaceIdUID)) {
-      throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Face ID not matched');
+      throw new ErrorResponse(httpStatus.BAD_REQUEST, "Face ID not matched");
     }
   }
 
   async setFingerprint(req) {
     const { fingerprintUID, type } = req.body;
 
-    const user = await this.getUserById(req.user.id, '+fingerprint.uid');
+    const user = await this.getUserById(req.user.id, "+fingerprint.uid");
     if (!user) {
-      throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
     }
 
     switch (type) {
-      case 'set':
+      case "set":
         user.fingerprint = { uid: encryptPassword(fingerprintUID) };
-        if (!user.settings?.isFingerPrintSet) user.settings.isFingerPrintSet = true;
+        if (!user.settings?.isFingerPrintSet)
+          user.settings.isFingerPrintSet = true;
 
         break;
-      case 'login':
+      case "login":
         this.validateFingerprint(fingerprintUID, user.fingerprint?.uid);
         user.lastLoginAt = new Date();
         break;
       default:
-        throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Invalid type specified');
+        throw new ErrorResponse(
+          httpStatus.BAD_REQUEST,
+          "Invalid type specified"
+        );
     }
 
     await user.save();
@@ -383,24 +480,30 @@ class UserService {
   async setFaceId(req) {
     const { faceIdUID, type } = req.body;
 
-    const user = await this.getUserById(req.user.id, '+faceId.uid');
+    const user = await this.getUserById(req.user.id, "+faceId.uid");
     if (!user) {
-      throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
     }
 
     switch (type) {
-      case 'set':
+      case "set":
         user.faceId = { uid: encryptPassword(faceIdUID) };
         user.settings.isFaceIdSet = true;
         if (!user.settings?.isFaceIdSet) user.settings.isFaceIdSet = true;
 
         break;
-      case 'login':
+      case "login":
         this.validateFaceId(faceIdUID, user.faceId?.uid);
         user.lastLoginAt = new Date();
         break;
       default:
-        throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Invalid type specified');
+        throw new ErrorResponse(
+          httpStatus.BAD_REQUEST,
+          "Invalid type specified"
+        );
     }
 
     await user.save();
@@ -430,9 +533,13 @@ class UserService {
 
   async chooseInterest(req) {
     const { interests } = req.body;
-    console.log(req.user)
+    console.log(req.user);
     const user = await this.getUserById(req.user.id);
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+    if (!user)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account not found. Please sign up."
+      );
 
     user.interests = interests;
     await user.save();
@@ -447,32 +554,78 @@ class UserService {
     try {
       const decoded = jwt.verify(refreshToken, config.jwt.secretRefreshKey);
 
-      const user = await this.getUserById(decoded.id, '-emailOTP -emailOTPForgotPassword');
-      if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account not found. Please sign up.');
+      const user = await this.getUserById(
+        decoded.id,
+        "-emailOTP -emailOTPForgotPassword"
+      );
+      if (!user)
+        throw new ErrorResponse(
+          httpStatus.BAD_REQUEST,
+          "Account not found. Please sign up."
+        );
 
       return user;
     } catch (error) {
-      if (error.name === 'JsonWebTokenError') {
-        throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Invalid token');
+      if (error.name === "JsonWebTokenError") {
+        throw new ErrorResponse(httpStatus.BAD_REQUEST, "Invalid token");
       }
     }
   }
 
   async getUserHistory(userId, actionType) {
-    const user = await User.findById(userId).select('actionHistory');
-    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, 'Account history not found');
+    const user = await User.findById(userId).select("actionHistory");
+    if (!user)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Account history not found"
+      );
 
-    
     let actionHistory = user.actionHistory;
-  
+
     if (actionType) {
-      actionHistory = actionHistory.filter(action => action.actionType === actionType);
+      actionHistory = actionHistory.filter(
+        (action) => action.actionType === actionType
+      );
     }
-  
+
     actionHistory.sort((a, b) => b.date - a.date);
     return actionHistory;
-  };
-  
+  }
+
+  async getUsersWithRoles() {
+    const user = await User.find().select("username role permissions");
+    if (!user)
+      throw new ErrorResponse(httpStatus.BAD_REQUEST, "User not found");
+
+    return user;
+  }
+
+  async assignRoleToUser(userId, role) {
+    const user = await User.findById(userId);
+    if (!user)
+      throw new ErrorResponse(httpStatus.BAD_REQUEST, "User not found");
+    user.role = role;
+    await user.save();
+    return { message: "Role assigned successfully" };
+  }
+
+  async adjustPermissions(userId, permissions) {
+    const user = await User.findById(userId);
+    if (!user) throw new ErrorResponse(httpStatus.BAD_REQUEST, "User not found");
+    user.permissions = permissions;
+    await user.save();
+    return { message: "Permissions adjusted successfully" };
+  }
+
+  async logRoleChange(userId, role) {
+    const log = new RoleChangeLog({ userId, role, changedAt: new Date() });
+    if (!log)
+      throw new ErrorResponse(
+        httpStatus.BAD_REQUEST,
+        "Error logging role change"
+      );
+    await log.save();
+  }
 }
 
 module.exports = new UserService();

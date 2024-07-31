@@ -13,9 +13,9 @@ class PostController {
 
   async approvePost(req, res) {
     const { postId } = req.params;
-    const { adminId } = req.user;
+    const userId = req.user.id; 
 
-    await postService.approvePost(postId, adminId);
+    const approve = await postService.approvePost(postId, userId);
     res.json({
       c: httpStatus.OK,
       m: "Post approved successfully",
@@ -25,40 +25,15 @@ class PostController {
 
   async removePost(req, res) {
     const { postId } = req.params;
-    const { adminId } = req.user;
+    const userId = req.user.id; 
 
-    await postService.removePost(postId, adminId);
+    const remove = await postService.removePost(postId, userId);
     res.json({
       c: httpStatus.OK,
       m: "Post removed successfully",
       d: {}
     });
   }
-
-  async approveComment(req, res) {
-    const { postId, commentId } = req.params;
-    const { adminId } = req.user;
-
-    await postService.approveComment(postId, commentId, adminId);
-    res.json({
-      c: httpStatus.OK,
-      m: "Comment approved successfully",
-      d: {}
-    });
-  }
-
-  async removeComment(req, res) {
-    const { postId, commentId } = req.params;
-    const { adminId } = req.user;
-
-    await postService.removeComment(postId, commentId, adminId);
-    res.json({
-      c: httpStatus.OK,
-      m: "Comment removed successfully",
-      d: {}
-    });
-  }
-
 }
 
 module.exports = new PostController();

@@ -246,240 +246,249 @@ const SettingsSchema = new mongoose.Schema({
 });
 
 const UserSchema = new mongoose.Schema(
-    {
-        firstName: {
-            type: String,
-            default: '',
-            index: true
-        },
-        middleName: {
-            type: String,
-            default: '',
-            index: true
-        },
-        lastName: {
-            type: String,
-            default: '',
-            index: true
-        },
-        fullName: {
-            type: String,
-            default: '',
-            index: true
-        },
-        email: {
-            type: String,
-            default: '',
-            index: true,
-            unique: true
-        },
-        username: {
-            type: String,
-            default: '',
-            index: true,
-            unique: true
-        },
-        phoneNumberPrefix: {
-            type: String,
-            default: ''
-        },
-        phoneNumber: {
-            type: String,
-            default: '',
-            index: true
-        },
-        gender: {
-            type: String,
-            enum: ['male', 'female', 'others'],
-        },
-        birthday: {
-            type: String,
-            default: '',
-        },
-        bio: {
-            type: String,
-            default: ''
-        },
-        isEmailVerified: {
-            type: Boolean,
-            default: false
-        },
-        isPhoneNumberVerified: {
-            type: Boolean,
-            default: false
-        },
-        isVerified: {
-            type: Boolean,
-            default: false
-        },
-        isNewUser: {
-            type: Boolean,
-            default: true
-        },
-        password: {
-            type: String,
-            select: false
-        },
-        passwordChangeExpiredAt: {
-            type: Date,
-            select: false
-        },
-        salt: {
-            type: String,
-            select: false
-        },
-        googleId: {
-            type: String,
-            index: true
-        },
-        facebookId: {
-            type: String,
-            index: true
-        },
-        appleId: {
-            type: String,
-            index: true
-        },
-        fingerprint: FingerPrintSchema,
-        faceId: FaceIdSchema,
-        emailOTP: {
-            code: String,
-            resendAt: Date,
-            expiredAt: Date
-        },
-        smsOTP: {
-            code: String,
-            resendAt: Date,
-            expiredAt: Date
-        },
-        emailOTPForgotPassword: {
-            isVerified: Boolean,
-            code: String,
-            resendAt: Date,
-            expiredAt: Date
-        },
-        role: {
-            type: String,
-            enum: ['user', 'doctor', 'admin'],
-            default: 'user'
-        },
-        roles: {
-            type: Array,
-            default: 'user'
-        },
-        status: {
-            type: String,
-            enum: ['ACTIVE', 'IN_ACTIVE', 'DEACTIVATED', 'DELETED'],
-            default: 'ACTIVE'
-        },
-        profile: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'Upload'
-        },
-        profilePicture: {
-            type: Object
-        },
-        country: {
-            type: String,
-            trim: true,
-            uppercase: true,
-            default: 'PH'
-        },
-        adb2c: Adb2cSchema,
-        address: {
-            houseNumber: String,
-            street: String,
-            stateOrRegion: String,
-            province: String,
-            townCity: String,
-            barangay: String,
-            zipCode: String
-        },
-        languages: {
-            type: Array,
-            default: []
-        },
-        sign: {
-            type: String,
-            default: ''
-        },
-        bio: {
-            type: String,
-            default: ''
-        },
-        addressShipping: [AddressShippingSchema],
-        postCategories: {
-            type: Array,
-        },
-        postSubCategories: {
-            type: Array
-        },
-        subscriptionPostCategories: [SubscriptionPostCategorySchema],
-        interests: [
-            {
-                type: mongoose.Schema.ObjectId,
-                ref: 'Category'
-            }
-        ],
-        referralCode: {
-            type: String,
-            index: true,
-            unique: true
-        },
-        referralCount: {
-            type: Number,
-            default: 0,
-            index: true
-        },
-        isProfileFinish: {
-            type: Boolean,
-            default: false
-        },
-        isRequestDeletedAccount: {
-            type: Boolean,
-            default: false
-        },
-        profilePrivacy: {
-            type: String,
-            default: 'private',
-            enum: ['private', 'public', 'friends'],
-            index: true
-        },
-        updateCount: {
-            type: Number,
-            default: 0
-        },
-        totalFollowers: {
-            type: Number,
-            default: 0,
-            index: true
-        },
-        totalFollowing: {
-            type: Number,
-            default: 0,
-            index: true
-        },
-        moderationActions: {
-            type: Array,
-            index: true
-        },
-        accountHistory: [
-            {
-              actionType: { type: String, enum: ['warning', 'timeout', 'ban'] },
-              actionDate: { type: Date, default: Date.now },
-              details: String,
-              postId: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
-              adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-            }
-          ],
-        actionHistory: [ActionHistorySchema],
-        settings: SettingsSchema,
-        ...MongooseHelper.timeStamps
+  {
+    firstName: {
+      type: String,
+      default: "",
+      index: true,
     },
-    {
-        toJSON: { virtuals: true },
-        toObject: { virtuals: true }
-    }
+    middleName: {
+      type: String,
+      default: "",
+      index: true,
+    },
+    lastName: {
+      type: String,
+      default: "",
+      index: true,
+    },
+    fullName: {
+      type: String,
+      default: "",
+      index: true,
+    },
+    email: {
+      type: String,
+      default: "",
+      index: true,
+      unique: true,
+    },
+    username: {
+      type: String,
+      default: "",
+      index: true,
+      unique: true,
+    },
+    phoneNumberPrefix: {
+      type: String,
+      default: "",
+    },
+    phoneNumber: {
+      type: String,
+      default: "",
+      index: true,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "others"],
+    },
+    birthday: {
+      type: String,
+      default: "",
+    },
+    bio: {
+      type: String,
+      default: "",
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isPhoneNumberVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isNewUser: {
+      type: Boolean,
+      default: true,
+    },
+    password: {
+      type: String,
+      select: false,
+    },
+    passwordChangeExpiredAt: {
+      type: Date,
+      select: false,
+    },
+    salt: {
+      type: String,
+      select: false,
+    },
+    googleId: {
+      type: String,
+      index: true,
+    },
+    facebookId: {
+      type: String,
+      index: true,
+    },
+    appleId: {
+      type: String,
+      index: true,
+    },
+    fingerprint: FingerPrintSchema,
+    faceId: FaceIdSchema,
+    emailOTP: {
+      code: String,
+      resendAt: Date,
+      expiredAt: Date,
+    },
+    smsOTP: {
+      code: String,
+      resendAt: Date,
+      expiredAt: Date,
+    },
+    emailOTPForgotPassword: {
+      isVerified: Boolean,
+      code: String,
+      resendAt: Date,
+      expiredAt: Date,
+    },
+    role: {
+      type: String,
+      enum: ["user", "doctor", "admin"],
+      default: "user",
+    },
+    roles: {
+      type: Array,
+      default: "user",
+    },
+    permissions: { 
+      type: [String],
+      required: true },
+    status: {
+      type: String,
+      enum: ["ACTIVE", "IN_ACTIVE", "DEACTIVATED", "DELETED"],
+      default: "ACTIVE",
+    },
+    profile: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Upload",
+    },
+    profilePicture: {
+      type: Object,
+    },
+    country: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      default: "PH",
+    },
+    adb2c: Adb2cSchema,
+    address: {
+      houseNumber: String,
+      street: String,
+      stateOrRegion: String,
+      province: String,
+      townCity: String,
+      barangay: String,
+      zipCode: String,
+    },
+    languages: {
+      type: Array,
+      default: [],
+    },
+    sign: {
+      type: String,
+      default: "",
+    },
+    bio: {
+      type: String,
+      default: "",
+    },
+    addressShipping: [AddressShippingSchema],
+    postCategories: {
+      type: Array,
+    },
+    postSubCategories: {
+      type: Array,
+    },
+    subscriptionPostCategories: [SubscriptionPostCategorySchema],
+    interests: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Category",
+      },
+    ],
+    referralCode: {
+      type: String,
+      index: true,
+      unique: true,
+    },
+    referralCount: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+    isProfileFinish: {
+      type: Boolean,
+      default: false,
+    },
+    isRequestDeletedAccount: {
+      type: Boolean,
+      default: false,
+    },
+    profilePrivacy: {
+      type: String,
+      default: "private",
+      enum: ["private", "public", "friends"],
+      index: true,
+    },
+    updateCount: {
+      type: Number,
+      default: 0,
+    },
+    totalFollowers: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+    totalFollowing: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+    moderationActions: {
+      type: Array,
+      index: true,
+    },
+    accountHistory: [
+      {
+        actionType: { type: String, enum: ["warning", "timeout", "ban"] },
+        actionDate: { type: Date, default: Date.now },
+        details: String,
+        postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
+        adminId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      },
+    ],
+    actionHistory: [ActionHistorySchema],
+    isSuspended: { type: Boolean, default: false },
+    suspension: {
+      suspendedAt: { type: Date },
+      suspensionEnds: { type: Date },
+      reason: { type: String },
+    },
+    settings: SettingsSchema,
+    ...MongooseHelper.timeStamps,
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 UserSchema.pre('save', async function (next) {
