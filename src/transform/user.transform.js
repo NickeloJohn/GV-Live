@@ -42,10 +42,32 @@ const transformUser = (user) => {
 		totalFollowers: user?.totalFollowers || 0,
 		totalFollowing: user?.totalFollowing || 0,
 	}
+	
 
 };
 
+const transformTicket = (ticket) => {
+	return {
+	  id: ticket._id,
+	  user: {
+		id: ticket.userId._id,
+		name: ticket.userId.name,
+		email: ticket.userId.email,
+	  },
+	  issue: ticket.issue,
+	  status: ticket.status,
+	  resolution: ticket.resolution,
+	  createdAt: ticket.createdAt,
+	  updatedAt: ticket.updatedAt,
+	  communication: ticket.communication.map(comm => ({
+		message: comm.message,
+		sentAt: comm.sentAt,
+	  }))
+	};
+};
+  
+
 
 module.exports = {
-	transformUser
+	transformUser, transformTicket
 }

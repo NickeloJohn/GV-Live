@@ -1,5 +1,6 @@
 const httpStatus = require("http-status");
 const { postService } = require("../services");
+const { getFlaggedComments, moderateComment } = require("../services/post.services");
 
 class PostController {
   async getFlaggedPosts(req, res) {
@@ -34,6 +35,28 @@ class PostController {
       d: {}
     });
   }
+
+  async getFlaggedComments(req, res){
+    const comments = await getFlaggedComments();
+    res.json({ 
+      c: 200, 
+      m: 'Success', 
+      d: comments 
+    });
+};
+
+
+async ModerateComment(req, res){
+    const { commentId, action } = req.body;
+    const userId = req.user.id;
+
+    const comment = await moderateComment(commentId, action, userId);
+    res.json({ 
+      c: 200, 
+      m: 'Success', 
+      d: comment 
+    });
+};
 }
 
 module.exports = new PostController();

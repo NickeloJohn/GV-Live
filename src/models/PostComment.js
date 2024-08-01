@@ -16,6 +16,16 @@ const PostCommentSchema = new mongoose.Schema(
             ref: 'Post',
             index: true
         },
+        postId: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Post',
+            required: true
+        },
+        userId: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
+            required: true
+        },
         content: {
             type: String,
             required: true,
@@ -34,6 +44,26 @@ const PostCommentSchema = new mongoose.Schema(
         likes: {
             type: Number,
             default: 0
+        },
+        flagged: {
+            type: Boolean,
+            default: false
+        },
+        flagReason: {
+            type: String,
+            default: ''
+        },
+        isApproved: {
+            type: Boolean,
+            default: false
+        },
+        isRemoved: {
+            type: Boolean,
+            default: false
+        },
+        moderatedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User'
         },
         ...MongooseHelper.timeStamps
     },

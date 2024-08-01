@@ -3,12 +3,14 @@ const jwt = require('jsonwebtoken');
 const httpStatus = require('http-status');
 
 const User = require("../models/User");
+const Ticket = require("../models/Ticket");
 const ErrorResponse = require("../utils/ErrorResponse");
 const { generateReferralCode, decryptData, defaultPaginate, ObjectId, getFullName, encryptPassword, decryptPassword } = require("../utils/functions");
 const { createEmailOTP, createOTPNumber } = require('../utils/user');
 const { sendEMAILChangePassword, sendEMAILOTP, sendEMAILOTPForgotPassword } = require('../utils/mailer_template');
 const config = require('../config/config');
 const Role = require('../models/Role');
+const { transformTicket } = require('../transform/user.transform');
 
 class UserService {
   async getUserByEmail(email, select = null) {
@@ -626,6 +628,42 @@ class UserService {
       );
     await log.save();
   }
+
+  async createTicket(userId, issue) {
+    const ticket = new Ticket({ userId, issue });
+    await ticket.save();
+    return {};
+  }
+
+  async getTickets() {
+    const ticket = await Ticket.find({}).populate('userId');
+    if (!ticket) throw new ErrorResponse(httpStatus.NOT_FOUND, 'ticket not found');
+    return transformTicket(ticket);
+}
+
+  async getTicketById(ticketId) {
+    const ticket =  await Ticket.findById(ticketId).populate('userId');
+    if (!ticket) throw new ErrorResponse(httpStatus.NOT_FOUND, 'Ticket not found');
+ 
+    return transformTicket(ticket);
+    
+}
+
+  async updateTicketStatus(ticketId, status, resolution) {
+     const update = await Ticket.findByIdAndUpdate(ticketId, { status, resolution }, { new: true });
+     if (!update) throw new ErrorResponse(httpStatus.NOT_FOUND, 'Unable to Update');
+     return {}
+  }
+
+  async addCommunication(ticketId, message) {
+    const ticket = await Ticket.findById(ticketId);
+    if (!ticket) throw new ErrorResponse(httpStatus.NOT_FOUND, 'ticket not found');
+    ticket.communication.push({ message, sentAt: new Date() });
+    await ticket.save();
+    return ticket;
+  }
+
+  
 }
 
 module.exports = new UserService();

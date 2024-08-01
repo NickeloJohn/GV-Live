@@ -170,6 +170,57 @@ async adjustPermissions(req, res) {
     });
 }
 
+async createTicket(req, res) {
+  const { userId, issue } = req.body;
+  const ticket = await userService.createTicket(userId, issue);
+  res.json({
+      c: httpStatus.OK,
+      m: null,
+      d: {}
+    });
+}
+
+async getTickets(req, res) {
+  const tickets = await userService.getTickets();
+  res.json({
+      c: httpStatus.OK,
+      m: null,
+      d: {}
+    });
+}
+
+async getTicketById(req, res) {
+  const { ticketId } = req.params;
+  const ticket = await userService.getTicketById(ticketId);
+  res.json({
+      c: httpStatus.OK,
+      m: null,
+      d: {ticket}
+    });
+}
+
+async resolveTicket(req, res) {
+  const { ticketId } = req.params;
+  const { resolution } = req.body;
+  const ticket = await userService.updateTicketStatus(ticketId, 'resolved', resolution);
+  res.json({
+      c: httpStatus.OK,
+      m: null,
+      d: {}
+    });
+}
+
+async addCommunication(req, res) {
+  const { ticketId } = req.params;
+  const { message } = req.body;
+  const ticket = await userService.addCommunication(ticketId, message);
+  res.json({
+      c: httpStatus.OK,
+      m: null,
+      d: {}
+    });
+}
+
 }
 
 module.exports = new UserController();
