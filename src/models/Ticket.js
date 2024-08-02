@@ -4,6 +4,25 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 const MongooseHelper = require('../utils/mongoose');
 const { Database1 } = require('../utils/database');
 
+const { TICKET_STATUS } = require('../utils/constant');
+const TicketStatusSchema = new mongoose.Schema({
+  status: {
+    type: String,
+    enum: Object.values(TICKET_STATUS),
+    default: TICKET_STATUS.OPEN
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    index: true
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+    index: true
+  }
+});
+
 const TicketSchema = new mongoose.Schema(
     {
         userId: {
@@ -16,11 +35,12 @@ const TicketSchema = new mongoose.Schema(
             type: String, 
             required: true 
         },
-        status: { 
-            type: String, 
-            enum: ['open', 'resolved'], 
-            default: 'open' 
-        },
+        ticketStatus: [TicketStatusSchema],
+        // status: { 
+        //     type: String, 
+        //     enum: ['open', 'resolved'], 
+        //     default: 'open' 
+        // },
         resolution: { 
             type: String 
         },

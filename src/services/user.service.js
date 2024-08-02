@@ -13,6 +13,12 @@ const Role = require('../models/Role');
 const { transformTicket } = require('../transform/user.transform');
 
 class UserService {
+  async getAllUsers(query) {
+    const options = { ...defaultPaginate(query) };
+    const users = await User.paginate({}, options);
+    return {};
+  }
+
   async getUserByEmail(email, select = null) {
     let results = User.findOne({ email }).select(select);
     if (select) {
@@ -52,6 +58,18 @@ class UserService {
     return User.findOneAndUpdate({ email }, payload, { new: true });
   }
 
+  async deleteUserById(userId) {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { status: "DELETED" },
+      { new: true }
+    );
+    if (!user) { throw new ErrorResponse(httpStatus.NOT_FOUND, 'User not found');
+    }
+    return {};
+  }
+
+
   async getIsExistReferralCode(referralCode) {
     const referral = await User.exists({
       referralCode: referralCode,
@@ -63,6 +81,8 @@ class UserService {
     const user = new User(payload);
     return await user.save();
   }
+
+
 
   async generateUserReferralCode() {
     let referralCode;
@@ -636,10 +656,10 @@ class UserService {
   }
 
   async getTickets() {
-    const ticket = await Ticket.find({}).populate('userId');
-    if (!ticket) throw new ErrorResponse(httpStatus.NOT_FOUND, 'ticket not found');
-    return transformTicket(ticket);
-}
+    const tickets = await Ticket.find({}).populate('userId');
+    if (!tickets || tickets.length === 0) throw new ErrorResponse(httpStatus.NOT_FOUND, 'Tickets not found');
+    return tickets.map(ticket => transformTicket(ticket));
+  }
 
   async getTicketById(ticketId) {
     const ticket =  await Ticket.findById(ticketId).populate('userId');
@@ -649,11 +669,18 @@ class UserService {
     
 }
 
-  async updateTicketStatus(ticketId, status, resolution) {
-     const update = await Ticket.findByIdAndUpdate(ticketId, { status, resolution }, { new: true });
-     if (!update) throw new ErrorResponse(httpStatus.NOT_FOUND, 'Unable to Update');
-     return {}
-  }
+async updateTicketStatus(ticketId, ticketStatus, resolution) {
+  const ticket = await Ticket.findById(ticketId).populate('userId');
+  if (!ticket) throw new ErrorResponse(httpStatus.NOT_FOUND, 'Ticket not found');
+  
+  ticket.ticketStatus.push({ status: ticketStatus });
+  ticket.resolution = resolution;
+  ticket.updatedAt = Date.now();
+
+  await ticket.save();
+  return transformTicket(ticket);
+}
+
 
   async addCommunication(ticketId, message) {
     const ticket = await Ticket.findById(ticketId);

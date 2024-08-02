@@ -55,7 +55,7 @@ const transformTicket = (ticket) => {
 		email: ticket.userId.email,
 	  },
 	  issue: ticket.issue,
-	  status: ticket.status,
+	  status: ticket.ticketStatus,
 	  resolution: ticket.resolution,
 	  createdAt: ticket.createdAt,
 	  updatedAt: ticket.updatedAt,

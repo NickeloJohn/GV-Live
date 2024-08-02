@@ -37,6 +37,16 @@ class UserController {
     });
   }
 
+  async getAllUsers(req, res, next) {
+    const users = await userService.getAllUsers(req.query);
+    res.json({
+      c: httpStatus.OK,
+      m: "Successfully fetched all users",
+      d: users,
+    });
+  }
+
+
   async getAllUserFollowed(req, res, next) {
     const paginatedResult = await followService.getAllUserFollowed(req);
 
@@ -130,6 +140,16 @@ class UserController {
     });
   }
 
+  async deleteUser(req, res) {
+    const { userId } = req.params;
+    const result = await userService.deleteUserById(userId);
+    res.json({
+      c: httpStatus.OK,
+      m: "Successfully delete the user",
+      d: result
+    });
+  }
+
   async getUserHistory(req, res, next) {
     const { userId } = req.params;
     const { actionType } = req.query;
@@ -181,7 +201,7 @@ async createTicket(req, res) {
 }
 
 async getTickets(req, res) {
-  const tickets = await userService.getTickets();
+  const ticket = await userService.getTickets();
   res.json({
       c: httpStatus.OK,
       m: null,
@@ -195,18 +215,18 @@ async getTicketById(req, res) {
   res.json({
       c: httpStatus.OK,
       m: null,
-      d: {ticket}
+      d: {}
     });
 }
 
-async resolveTicket(req, res) {
+async updateTicketStatus(req, res) {
   const { ticketId } = req.params;
   const { resolution } = req.body;
   const ticket = await userService.updateTicketStatus(ticketId, 'resolved', resolution);
   res.json({
       c: httpStatus.OK,
       m: null,
-      d: {}
+      d: {ticket}
     });
 }
 

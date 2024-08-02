@@ -222,6 +222,15 @@ const CHAT_TYPE = {
     GROUP: 'group'
 }
 
+const TICKET_STATUS = {
+    OPEN: 'pending',
+    IN_PROGRESS: 'in_progress', 
+    AWAITING_CUSTOMER: 'awaiting_customer',
+    RESOLVED: "resolved",
+    CLOSED: "closed",
+    CANCELLED: "cancelled"
+  }
+
 
 module.exports = {
     ACTIVE_STATUS,
@@ -289,5 +298,6 @@ module.exports = {
     TYPE_RETURN_ITEMS,
 
     SHIPPING_FEE,
-    CHAT_TYPE
+    CHAT_TYPE,
+    TICKET_STATUS
 };

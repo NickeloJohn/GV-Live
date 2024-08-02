@@ -4,7 +4,7 @@ const router = express.Router();
 const { defaultLimiter } = require('../../utils/rate-limiter');
 const { uploadSingleFile } = require('../../utils/multer-upload');
 const { protectAuth } = require('../../middlewares/protectAuth');
-const { followUser, unFollowUser, removeFollower, getAllUserFollowing, getAllUserFollowed, getAllSuggestToFollow, getInterest, updateProfile, getMe, getUserHistory, suspendUserController, getUserProfileController, getUsersWithRoles, assignRoleToUser, adjustPermissions, createTicket, getTickets, getTicketById, resolveTicket, addCommunication } = require('../../controllers/user.controller');
+const { followUser, unFollowUser, removeFollower, getAllUserFollowing, getAllUserFollowed, getAllSuggestToFollow, getInterest, updateProfile, getMe, getUserHistory, suspendUserController, getUserProfileController, getUsersWithRoles, assignRoleToUser, adjustPermissions, createTicket, getTickets, getTicketById, resolveTicket, addCommunication, updateTicketStatus, getAllUsers, deleteUser } = require('../../controllers/user.controller');
 const { asyncHandler } = require('../../middlewares/asyncHandler');
 const validate = require('../../middlewares/validate');
 const { updateProfileValidation } = require('../../validations/user.validation');
@@ -21,7 +21,7 @@ router.post('/adjust-permissions', asyncHandler(adjustPermissions));
 router.post('/tickets', asyncHandler (createTicket));
 router.get('/get-tickets', asyncHandler(getTickets));
 router.get('/tickets/:ticketId', asyncHandler(getTicketById));
-router.put('/tickets/:ticketId/resolve', asyncHandler(resolveTicket));
+router.put('/tickets/:ticketId/resolve', asyncHandler(updateTicketStatus));
 router.post('/tickets/:ticketId/communication', asyncHandler(addCommunication));
 
 
@@ -38,7 +38,7 @@ router.get('/:userId/followers', asyncHandler(getAllUserFollowed));
 router.get('/:userId/following', asyncHandler(getAllUserFollowing));
 router.get('/:userId/suggest-to-follow', asyncHandler(getAllSuggestToFollow));
 router.get('/:userId/interest', asyncHandler(getInterest));
-
-
+router.get('/get-users', asyncHandler(getAllUsers)); 
+router.delete('/delete-user/:userId', asyncHandler(deleteUser)); 
 
 module.exports = router;
